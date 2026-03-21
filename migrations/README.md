@@ -1,97 +1,30 @@
 # Protocol Migrations
 
-This directory contains migration scripts and documentation for protocol upgrades.
+This directory is the repo-local home for migration notes and helpers.
 
-## Directory Structure
+## Current State
 
-```
-migrations/
-  README.md           - This file
-  v1_to_v2.rs         - Template for future v1->v2 migration
-  migration_utils.ts  - TypeScript utilities for running migrations
-```
+- The live protocol version constants still target version `1`.
+- Migration authority lives in the public protocol repo, not in `agenc-core` or other workspace repos.
+- `programs/agenc-coordination/src/instructions/migrate.rs` is the source of truth for migration logic when versioned state changes are introduced.
 
-## Migration Process
+## What Belongs Here
 
-### 1. Pre-Migration Checklist
+- notes for a real version change
+- migration helper scripts
+- rollout and rollback guidance tied to a specific protocol upgrade
 
-- [ ] Code changes tested on localnet
-- [ ] Code changes tested on devnet
-- [ ] Migration script tested on devnet
-- [ ] Rollback plan documented
-- [ ] Multisig signers coordinated
-- [ ] Communication plan for users
+## What Does Not Belong Here
 
-### 2. State Migration Flow
+- speculative future-version templates presented as current guidance
+- private-core rollout authority
+- generic operational docs that are not tied to protocol migration work
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Migration Flow                                │
-├─────────────────────────────────────────────────────────────────┤
-│  1. Deploy new program binary (upgrade)                          │
-│     └── solana program deploy --program-id <ID> target/...so    │
-│                                                                  │
-│  2. Call migrate_protocol instruction                            │
-│     └── Requires multisig approval                               │
-│     └── Updates protocol_version field                           │
-│     └── Applies state transformations                            │
-│                                                                  │
-│  3. Verify migration success                                     │
-│     └── Check protocol_version updated                           │
-│     └── Verify state integrity                                   │
-│     └── Run smoke tests                                          │
-│                                                                  │
-│  4. Update min_supported_version (optional)                      │
-│     └── After grace period for stragglers                        │
-│     └── Deprecates old version support                           │
-└─────────────────────────────────────────────────────────────────┘
-```
+## When A Real Migration Is Added
 
-### 3. Adding New Migrations
+1. add the migration logic in `programs/agenc-coordination/src/instructions/migrate.rs`
+2. update the version constants in `src/state.rs`
+3. document the exact upgrade path, verification steps, and rollback plan here
+4. update the repo docs that describe version compatibility
 
-When adding a new version migration:
-
-1. Add migration logic to `programs/agenc-coordination/src/instructions/migrate.rs`:
-
-```rust
-fn apply_migration(config: &mut ProtocolConfig, version: u8) -> Result<()> {
-    match version {
-        // ... existing versions ...
-        3 => {
-            // Version 3 migration logic
-            // Initialize new fields, transform data, etc.
-            config.new_field = default_value;
-            Ok(())
-        }
-        _ => Err(CoordinationError::InvalidMigrationTarget.into())
-    }
-}
-```
-
-2. Update version constants in `state.rs`:
-
-```rust
-pub const CURRENT_PROTOCOL_VERSION: u8 = 3;  // Update to new version
-// MIN_SUPPORTED_VERSION stays at 1 until old versions are deprecated
-```
-
-3. Create a migration script in this directory documenting the changes.
-
-### 4. Version Compatibility
-
-| Program Version | Min Account Version | Max Account Version |
-|-----------------|--------------------|--------------------|
-| v1.0.0          | 1                  | 1                  |
-| v1.1.0          | 1                  | 2                  |
-| v2.0.0          | 1                  | 2                  |
-
-### 5. Emergency Rollback
-
-If a migration causes issues:
-
-1. **Do NOT call migrate_protocol again** with a lower version
-2. Deploy the previous program binary
-3. Accounts remain at their current version
-4. Program handles both old and new version accounts
-
-Keep rollback and deployment procedures with the protocol repo as extraction continues; do not depend on private-core docs for protocol upgrade authority.
+Until then, treat this directory as reserved migration authority rather than a template-driven roadmap.

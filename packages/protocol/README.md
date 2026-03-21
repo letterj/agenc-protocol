@@ -2,8 +2,11 @@
 
 Public protocol artifact package for AgenC.
 
-This package is the installable npm contract exported from the public
-`tetsuo-ai/agenc-protocol` repository. It exposes:
+## What This Package Is
+
+This is the installable npm contract exported from `agenc-protocol`. It is derived from the committed canonical artifacts at the repo root; it is not the source of truth itself.
+
+It exposes:
 
 - `AGENC_COORDINATION_IDL`
 - `AGENC_PROTOCOL_MANIFEST`
@@ -31,3 +34,9 @@ Raw artifact subpaths are also exported:
 - `@tetsuo-ai/protocol/idl/agenc_coordination.json`
 - `@tetsuo-ai/protocol/manifest.json`
 - `@tetsuo-ai/protocol/verifier-router.json`
+
+## Consumer Guidance
+
+Use this package when you need released protocol artifacts in downstream repos such as `agenc-sdk`, `agenc-prover`, or external integrations.
+
+Use the repo-root artifacts when you are maintaining protocol source of truth inside `agenc-protocol`.

@@ -2,6 +2,15 @@
 
 Public protocol source of truth for AgenC.
 
+## Start Here
+
+- [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md) - reading order for developers and AI agents
+- [docs/CODEBASE_MAP.md](docs/CODEBASE_MAP.md) - repo layout and ownership map
+- [docs/PROGRAM_SURFACE.md](docs/PROGRAM_SURFACE.md) - grouped instruction and PDA overview
+- [docs/ARTIFACT_PIPELINE.md](docs/ARTIFACT_PIPELINE.md) - artifact sync rules
+- [docs/VALIDATION.md](docs/VALIDATION.md) - local toolchain and CI-equivalent commands
+- [docs/ZK_PRIVATE_FLOW.md](docs/ZK_PRIVATE_FLOW.md) - private-completion and zk-config flow
+
 This repository owns:
 
 - the Anchor program in `programs/agenc-coordination/`
@@ -17,7 +26,9 @@ This repository does not own host-side proving infrastructure, runtime orchestra
 ```text
 agenc-protocol/
 ├── Anchor.toml
+├── docs/
 ├── programs/agenc-coordination/
+├── packages/protocol/
 ├── migrations/
 ├── zkvm/
 │   ├── Cargo.toml
@@ -27,9 +38,11 @@ agenc-protocol/
 │   └── anchor/
 │       ├── idl/agenc_coordination.json
 │       └── types/agenc_coordination.ts
-└── scripts/
-    ├── sync-anchor-artifacts.mjs
-    └── idl/verifier_router.json
+├── scripts/
+│   ├── sync-anchor-artifacts.mjs
+│   ├── sync-package-protocol-assets.mjs
+│   └── idl/verifier_router.json
+└── .github/workflows/
 ```
 
 ## Canonical Artifacts
@@ -47,47 +60,17 @@ The npm distribution surface lives in [packages/protocol](./packages/protocol) a
 artifacts above and is the supported way for downstream repos to consume the
 public protocol contract.
 
-## Build
+## Validation
 
 ```bash
-anchor build
-```
-
-## Refresh Protocol Artifacts
-
-After a successful `anchor build`, refresh the committed artifact surface:
-
-```bash
-npm install
-npm run artifacts:refresh
-```
-
-To verify that committed artifacts still match the latest local Anchor build:
-
-```bash
+npm ci
 npm run artifacts:check
-```
-
-## Publishable Artifact Package
-
-Build the publishable protocol package:
-
-```bash
-npm install
 npm run build
-```
-
-Validate pack/install smoke:
-
-```bash
+npm run typecheck
 npm run pack:smoke
 ```
 
-Run the full package validation set:
-
-```bash
-npm run validate
-```
+Use `anchor build` before `npm run artifacts:refresh` when the program or IDL changes.
 
 ## Scope Rules
 
@@ -95,3 +78,5 @@ npm run validate
 - Do not treat `target/` as the public artifact interface.
 - Do not hand-edit `artifacts/anchor/*`; regenerate them from `anchor build`.
 - Do not hand-edit `packages/protocol/src/generated/*`; regenerate them from the canonical artifacts.
+
+For the detailed repo map, use [docs/CODEBASE_MAP.md](docs/CODEBASE_MAP.md). For the full artifact flow, use [docs/ARTIFACT_PIPELINE.md](docs/ARTIFACT_PIPELINE.md).
