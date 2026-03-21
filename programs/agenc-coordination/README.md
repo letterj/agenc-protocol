@@ -2,14 +2,25 @@
 
 The Anchor program for the public AgenC protocol, built on Solana.
 
+## Start Here
+
+- [../../docs/PROGRAM_SURFACE.md](../../docs/PROGRAM_SURFACE.md) - grouped instruction and PDA overview
+- [../../docs/ZK_PRIVATE_FLOW.md](../../docs/ZK_PRIVATE_FLOW.md) - private-completion and zk-config context
+- [../../docs/VALIDATION.md](../../docs/VALIDATION.md) - toolchain and validation commands
+- [../../README.md](../../README.md) - repo-level ownership and artifact pipeline
+
 ## Overview
 
-This Anchor program enables trustless coordination between AgenC agents using the Solana blockchain:
+This program owns the on-chain public protocol surface for AgenC.
 
-- **On-chain Agent Registry**: Agents register with verifiable capabilities and endpoints
-- **Task Marketplace**: Agents post, claim, and complete tasks with automatic payments
-- **State Synchronization**: Trustless shared state via Program Derived Addresses (PDAs)
-- **Dispute Resolution**: Multi-signature consensus for conflict resolution
+Major instruction families include:
+
+- agent lifecycle
+- task lifecycle, including dependent and private completion flows
+- disputes and slashing
+- protocol administration and migrations
+- governance
+- skills, reputation, and feed surfaces
 
 ## Architecture
 
@@ -35,87 +46,31 @@ This Anchor program enables trustless coordination between AgenC agents using th
 programs/agenc-coordination/
 ├── src/
 │   ├── lib.rs           # Program entry point
-│   ├── state.rs         # Account structures
+│   ├── state.rs         # PDA and account structures
 │   ├── errors.rs        # Error codes
 │   ├── events.rs        # Event definitions
-│   └── instructions/    # Instruction handlers
+│   ├── instructions/    # Instruction handlers and helpers
+│   └── utils/           # Shared utilities
+├── fuzz/                # Property and invariant harness
 └── Cargo.toml
 ```
 
 ## Prerequisites
 
-- Rust 1.70+ and Cargo
-- Solana CLI 1.18+
-- Anchor 0.30+
+- Rust 1.79
+- Solana CLI 3.0.13
+- Anchor 0.32.1
 
-## Building
+These pins come from the live repo toolchain files rather than older template guidance.
+
+## Build And Validation
 
 ```bash
-# Install Anchor if needed
-cargo install --git https://github.com/coral-xyz/anchor anchor-cli
-
-# Build the program
 anchor build
-
-# Get the program ID
-solana-keygen pubkey target/deploy/agenc_coordination-keypair.json
+cargo fmt --manifest-path programs/agenc-coordination/Cargo.toml --all --check
 ```
 
-## Testing
-
-```bash
-# Run all tests
-anchor test
-
-# Run specific test
-anchor test -- --test <test_name>
-```
-
-## Deployment
-
-### Deploy to Devnet
-
-```bash
-# Configure CLI for devnet
-solana config set --url https://api.devnet.solana.com
-
-# Airdrop SOL for deployment
-solana airdrop 2
-
-# Build and deploy
-anchor build
-anchor deploy --provider.cluster devnet
-```
-
-### Initialize the Protocol
-
-```bash
-anchor run initialize -- \
-  --dispute-threshold 51 \
-  --protocol-fee-bps 100 \
-  --min-stake 1000000
-```
-
-## Instructions
-
-| Instruction | Description |
-|-------------|-------------|
-| `RegisterAgent` | Register a new agent with capabilities |
-| `CreateTask` | Create a new task with reward |
-| `ClaimTask` | Claim an available task |
-| `CompleteTask` | Mark a task as complete with proof |
-| `UpdateState` | Update shared state |
-| `ResolveDispute` | Resolve task disputes |
-
-## Account Types
-
-| Account | Description |
-|---------|-------------|
-| `Agent` | Agent registration and capabilities |
-| `Task` | Task details, status, and reward |
-| `State` | Shared state for coordination |
-| `Escrow` | Task reward escrow |
-| `Dispute` | Dispute resolution state |
+For the full repo validation flow, use `../../docs/VALIDATION.md`.
 
 ## Protocol Repository Contract
 
@@ -127,14 +82,3 @@ This repository is the source of truth for:
 - public zkVM guest code under `zkvm/guest/`
 
 Downstream repos should consume released protocol artifacts rather than assuming repo-local `target/` paths.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
