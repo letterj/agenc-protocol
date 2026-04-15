@@ -6,3 +6,6 @@ packages/protocol/dist/
 packages/protocol/*.tgz
 tetsuo-ai-protocol-*.tgz
 .DS_Store
+.claude/
+AGENTS.md
+CONCORDIA_TODO.MD
